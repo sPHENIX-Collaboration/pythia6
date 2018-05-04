@@ -1,0 +1,3 @@
+tar zcvf pythia6.tar.gz  pythia6/tarPythia6 pythia6/makePythia* \
+pythia6/pythia6*.f \
+  pythia6/pythia6_common_address.c pythia6/tpythia6_called_from_cc.F
