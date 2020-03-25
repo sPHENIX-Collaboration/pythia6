@@ -111,6 +111,7 @@
          integer:: ORDER
          integer:: NPRT, I, ltype 
          integer:: idum1, idum2, initseed
+         integer:: un,istat
          double precision:: sqrts
          double precision:: pbeamE, ebeamE, epznucl
          logical:: UseLut, GenLut
@@ -173,16 +174,24 @@
          write(*, *) 'NOW all parameters are read by PYTHIA'
          write(*, *) '*********************************************'
 
+
          ! Getting the date and time of the event generation
          call idate(today)   ! today(1)=day, (2)=month, (3)=year
          call itime(now)     ! now(1)=hour, (2)=minute, (3)=second
-        
-         ! Take date as the SEED for the random number generation
-         ! Use constant seed for debug purposes
-         ! \todo Need to change this back for release!!!
-         initseed = 12345!today(1) + 10*today(2) + today(3) + now(1) + 5*now(3)
-         write(6,*) 'SEED = ', initseed
-         call rndmq(idum1,idum2,initseed,' ')
+         open(newunit=un, file="/dev/urandom", access="stream",
+     +     form="unformatted", action="read", status="old", iostat=istat)
+            if (istat == 0) then
+               read(un) initseed
+               close(un)
+            else
+               ! Take date as the SEED for the random number generation
+               ! Use constant seed for debug purposes
+               ! \todo Need to change this back for release!!!
+               initseed = today(1) + 10*today(2) + today(3) + now(1)
+     +      + 5*now(3)
+            endif
+         write(6,*) 'SEED = ', abs(initseed)
+         call rndmq(idum1,idum2,abs(initseed),' ')
         
          sqrts = sqrt(4. * pbeam * ebeam)
          write(*, *) '*********************************************'
